@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+  <head>
+	<style>
+        body
+        {
+            width: 100%;
+            height: 800px;
+            background:url('https://i.pinimg.com/originals/0e/26/ca/0e26caf0af80cafd5b3943736fa9565f.gif') no-repeat center;
+            background-size: cover;
+        }
+    </style>
+    <meta charset="UTF-8" />
+    <title>Insert-REACT</title>
+    <script src="react/react.development.js"></script>
+    <script src="react/react-dom.development.js"></script>
+    <script src="react/prop-types.js"></script>
+	<script src="react/axios.min.js"></script>
+    <script src="react/babel.min.js"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="text/babel">
+
+class App extends React.Component{
+  
+  constructor(props) {
+	super(props);
+	this.state = {
+	  movieno:'',
+    moviename: '',
+    movieimdb: '',
+    movielang: '',
+	  moviedata:[]
+	}
+  };
+  
+handleSubmit(e){
+    e.preventDefault();
+	const mydata1=
+	{
+	  movieno: this.state.movieno,
+	  moviename:this.state.moviename,
+    movielang:this.state.movielang,
+    movieimdb:this.state.movieimdb
+	};
+    axios({
+      method: "POST", 
+      url:"http://localhost:8888/api/savedata", 
+      data:  mydata1,
+	 
+    }).then((response)=>{
+		console.log("Data has been sent to server");
+      if (response.data.status === 'success'){
+	     console.log("Data has been submitted");
+		alert("Movie Inserted.  "+response.data.mydata.movieno+":  "+response.data.mydata.moviename+":  "+response.data.mydata.movielang+":  "+response.data.mydata.movieimdb)
+		console.log(response.data.mydata.movieno+":"+response.data.mydata.moviename+":"+response.data.mydata.movielang+":"+response.data.mydata.movieimdb+":"+response.data.mydata.serverMessage);
+		const myresponsedata = JSON.stringify(response.data.mydata)
+		this.setState({moviedata:myresponsedata})
+        this.resetForm()
+      }else if(response.data.status === 'fail'){
+        alert("Duplicate Entry")
+		this.resetForm()
+      }
+	  
+    })
+	.catch((e) => {
+	console.log("Internal Server error"+e);
+	});;
+	
+  };
+
+  resetForm(){
+     this.setState({movieno: '',  moviename: '', movielang: '', movieimdb: ''})
+  };
+
+    
+  render() {
+     //console.log("State:",this.state)
+	return(
+  	<div className="App">
+  	<form id="contact-form" onSubmit={this.handleSubmit.bind(this)} method="POST">
+  	<div className="form-group">
+      	<label htmlFor="movieno"><font size = "+2"><b>Movie No :</b></font></label>
+      	<input type="text" className="form-control" id="movieno" name="movieno" value={this.state.movieno} onChange={this.onMovieChange.bind(this)} />
+  	</div>
+  	<br/>
+  	<div className="form-group">
+      	<label htmlFor="moviename"><font size = "+2"><b>Movie Name :</b></font></label>
+      	<input type="text" className="form-control" id="moviename" name="moviename" value={this.state.moviename} onChange={this.onMovieChange.bind(this)} />
+  	</div>
+		<br/>
+    <div className="form-group">
+      	<label htmlFor="movielang"><font size = "+2"><b>Movie Language :</b></font></label>
+      	<input type="text" className="form-control" id="movielang" name="movielang" value={this.state.movielang} onChange={this.onMovieChange.bind(this)} />
+  	</div>
+    <br/>
+    <div className="form-group">
+      	<label htmlFor="movieimdb"><font size = "+2"><b>Movie IMDB rating :</b></font></label>
+      	<input type="text" className="form-control" id="movieimdb" name="movieimdb" value={this.state.movieimdb} onChange={this.onMovieChange.bind(this)} />
+  	</div>
+    <br/>
+  	<div>
+	<button type="submit" className="btn btn-primary">Submit</button>
+	</div>
+  	</form>
+	
+	<h3>{this.state.moviedata}</h3>
+	<b><a href="index.html"><font size="+2" color="#009999">Back</font></a></b>
+  	</div>
+	);
+	
+  }
+// Getting access to entered values
+   onMovieChange(event) 
+   {
+       this.setState({ [event.target.name]: event.target.value });  
+   }
+  
+}
+ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+    
+  </body>
+</html>
